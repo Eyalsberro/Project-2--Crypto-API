@@ -1,0 +1,148 @@
+h1 {
+  text-align: center;
+  /* The image used */
+  background-image: url("/stock.jpg");
+  /* Set a specific height */
+  height: 200px;
+  /* Create the parallax scrolling effect */
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#myProgress {
+  width: 100%;
+  background-color: #ddd;
+}
+
+#myBar {
+  width: 1%;
+  height: 30px;
+  background-color: #04AA6D;
+}
+
+.container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  /* Rounded sliders */
+}
+
+.container .card {
+  margin: 10px;
+  margin-top: 50px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 15rem;
+  border: transparent;
+  -webkit-box-shadow: 0 0 1px 0px;
+          box-shadow: 0 0 1px 0px;
+}
+
+.container h3 {
+  text-transform: uppercase;
+}
+
+.container .moreInfo {
+  display: none;
+  padding: 10px;
+  margin-top: 15px;
+}
+
+.container .switch {
+  position: absolute;
+  display: inline-block;
+  margin-left: 150px;
+  width: 60px;
+  height: 34px;
+}
+
+.container .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.container .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.container .slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.container input:checked + .slider {
+  background-color: #2196F3;
+}
+
+.container input:focus + .slider {
+  -webkit-box-shadow: 0 0 1px #2196F3;
+          box-shadow: 0 0 1px #2196F3;
+}
+
+.container input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.container .slider.round {
+  border-radius: 34px;
+}
+
+.container .slider.round:before {
+  border-radius: 50%;
+}
+
+.notfound {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.toggledCoins {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  list-style: none;
+  margin: 5px;
+  width: 100%;
+}
+
+.toggledCoins li {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 10px;
+}
+
+#btntoggle {
+  width: 100px;
+  margin: 5px;
+}
+/*# sourceMappingURL=style.css.map */
