@@ -2,9 +2,14 @@ $(() => {
 
 
     let cryptoSelectArr = []
-    let selectedCoinsSymbol = []
-    let RemovedCoinsArr = [];
     let localCrypto;
+
+    let cryptoForGraph0 = [];
+    let cryptoForGraph1 = [];
+    let cryptoForGraph2 = [];
+    let cryptoForGraph3 = [];
+    let cryptoForGraph4 = [];
+    let realTimeCoins = [];
 
 
     $.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&page=1&per_page=10`, cryptos => {
@@ -13,22 +18,18 @@ $(() => {
             localCrypto = JSON.parse(localStorage.getItem("localCrypto"))
         } else {
             localStorage.setItem("localCrypto", JSON.stringify(cryptos))
+            localCrypto = JSON.parse(localStorage.getItem("localCrypto"))
         }
 
         for (const crypto of localCrypto) {
 
             CryptoDraw(crypto)
 
-
-
-
-
-
         }
-        
+
     })
 
-    
+    //==========Drowing a crypto card function =====///
     function CryptoDraw(crypto) {
 
         $(".container").append(`    
@@ -52,105 +53,125 @@ $(() => {
 
         //==== More Info Button===//
         $(`#btn${crypto.id}`).click(() => {
-            setTimeout(() => {
-                $.get(`https://api.coingecko.com/api/v3/coins/${crypto.id}`, dataCrypto => {
-                    $(`.moreInfo#${crypto.id}`).toggle();
-                    return $(`.moreInfo#${crypto.id}`).html(`
-                        <img src=${dataCrypto.image.small}>
-                        <p><b>USD:</b>  $${dataCrypto.market_data.current_price.usd} </p>
-                        <p><b>ILS:</b>  ${dataCrypto.market_data.current_price.ils}₪</p>
-                        <p><b>Euro:</b>  ${dataCrypto.market_data.current_price.eur}€</p>
-                    
-                    `)
-
-                })
-
-            }, 1000);
-
-            $(`.moreInfo#${crypto.id}`).html(`
-                <i class="fas fa-spinner fa-pulse"></i>
-            
-            `)
-            
+            $(`.moreInfo#${crypto.id}`).toggle();
+            moreInfoBtn(crypto.id)
 
         })
 
 
         //===Check Toggle===//
-        $(`#${crypto.id}-switch.checswitch`).click((e) => {
-            let coinid = e.target.id;
-            let name = crypto.id
+        $(`#${crypto.id}-switch`).click((e) => {
 
             if (cryptoSelectArr.length < 5) {
+
                 if (e.target.checked == true) {
-                    cryptoSelectArr.push({ coinid, name });
-
+                    console.log(e.target.id);
+                    console.log("checked");
+                    cryptoSelectArr.push(crypto.id)
                     console.log(cryptoSelectArr);
-                } else {
 
-                    cryptoSelectArr.pop(($.inArray(e.target)));
+
+                } else {
+                    console.log("Not checked");
+                    let removeSelCrypto = crypto.id
+                    cryptoSelectArr.splice($.inArray(removeSelCrypto, cryptoSelectArr), 1);
+                    $(`#${crypto.id}-switch`).prop('checked', false)
                     console.log(cryptoSelectArr);
                 }
+
             } else {
-                if (e.target.checked == false) {
-                    $(`.intoggle#${coinid}`).prop('checked', false);
-                    cryptoSelectArr.pop(($.inArray(e.target)));
-                } else {
-                    e.preventDefault()
-                    for (const items of cryptoSelectArr) {
-                     
-                        $(".toggledCoins").append(`
-            
-                            <li>
-                               <span class="coinsToggle"> ${items.name} </span>
-                                <label class="switch">
-                                    <input class="intoggle" type="checkbox" checked="checked" id="${items.coinid}">
-                                    <span class="slider round"></span>
-                                </label>                                                         
-                            </li>
-      
-                        `)
+                // if (e.target.checked == false) {
+                //     let removeSelCrypto = crypto.id
+                //     $(`#${ crypto.id }-switch`).prop('checked', false)
+                //     cryptoSelectArr.splice($.inArray(removeSelCrypto, cryptoSelectArr), 1);
+                //     console.log(cryptoSelectArr);
+
+
+
+                $("#myModal").modal("show");
+                showModalHandler()
+
+
+                $(`#${crypto.id}-switch`).prop('checked', false)
+                $(`.intoggle`).click((e) => {
+                    console.log(e.target.id);
+                    if (e.target.checked == false) {
+                        let removeSelCrypto = e.target.id;
+                        let arttt = cryptoSelectArr.indexOf(removeSelCrypto)
+
+                        cryptoSelectArr.splice(arttt, 1);
+                        $(`#${removeSelCrypto}-switch`).prop('checked', false)
+
+                        console.log(cryptoSelectArr);
+
                     }
-                    $(".toggledCoins").append(`<button id="btntoggle" class="btn btn-danger btntoggle"> Cancel</button>`)
-                    $(".toggledCoins").append(`<button id="btntoggle" class="btn btn-primary btntoggle1"> Okay</button>`)
 
-                    $(`.intoggle`).click((e) => {
-                        if (e.target.checked == false) {
-                            let id = e.currentTarget.id;
-                            cryptoSelectArr.pop(($.inArray(e.target)));
-                            console.log(cryptoSelectArr);
+                })
 
-                            // if (e.target.checked == false) {
-                            //     // $(`.intoggle#${id}`).prop("checked", false);
-                            //     // $(`.intoggle#${coinid}`).prop("checked", true);
-                            //     // cryptoSelectArr = cryptoSelectArr.filter((e) => e.coinid != id);
-                            //     console.log(cryptoSelectArr2);
-                            // }
-                        }
+                $(`.btn-close`).click(() => {
+                    let removeSelCrypto = target.id;
+                    console.log(removeSelCrypto);
+                    $(`#${removeSelCrypto}-switch`).prop('checked', true)
 
-                    })
 
-                    $(`.btntoggle1`).click(() => {
-                        $(`#${crypto.id}-switch.checswitch`).prop("checked", false);
-                        $(".toggledCoins").css("display", "none");
+                })
 
-                    })
 
-                }
             }
+
+
+
+
 
         })
 
 
 
-
-
-
     }
 
-    
 
-    //============input button======//
+    //====== Home Page =========//
+    $(`.home`).click(() => {
+        $(".container").empty()
+        localCrypto = JSON.parse(localStorage.getItem("localCrypto"))
+        for (const crypto of localCrypto) {
+
+            CryptoDraw(crypto)
+            if (cryptoSelectArr.length > 0) {
+                cryptoSelectArr.forEach(cryptoCoinslc => {
+                    if (cryptoCoinslc == crypto.id) {
+                        $(`#${cryptoCoinslc}-switch`).prop("checked", true)
+
+                    }
+                });
+
+
+            }
+
+        }
+
+    })
+
+
+
+    //========== Show Modal =============//
+    function showModalHandler() {
+        for (const items of cryptoSelectArr) {
+            $(".modal-body").append(`  
+                
+                 <li>
+                    <span class="coinsToggle"> ${items} </span>
+                    <label class="switch">
+                        <input class="intoggle" type="checkbox" checked="checked" id="${items}">
+                        <span class="slider round"></span>
+                    </label>                                                         
+                </li>
+
+            `)
+        }
+    }
+
+    //============input Search button======//
     localCrypto = JSON.parse(localStorage.getItem("localCrypto"))
     $(`#btnInp`).click(() => SearchCrypto())
 
@@ -169,7 +190,7 @@ $(() => {
             $('.container').html(`
                 <div class="notfound">
                 
-                <h2> Crypto Coin Not Find!! Please Try Again 😀 </h2>
+                <h2> Crypto Coin Not Found 😕!! Please Try Again 😀 </h2>
                 <h2> Use Crypto Symbol aka: "BTC" </h2>
                 </div>
             `)
@@ -177,18 +198,30 @@ $(() => {
 
     }
 
-    
+
     //====== About Page =========//
     $('.about').click(() => {
         setTimeout(() => {
             $(".container").html("")
             $(".container").html($(".container").html() + `
+                <div class="row">
+                    <div class="col-6">
+                    
+                            <h2>Im Eyal Sberro</h2>
+                            <p>I have a BA in Business Administration, Specialization in Network Sciences from the Interdisciplinary Center (IDC), Herzliya.</p>
+                            <p>I'm currently learning to be a FullStack Developer at "John Bryce" finishing in March 2022.</p>
+                            <p>I was a Co-founder at Dvora.io, a personalized gift matcher.</p>
+                            <p>Skilled in Operations, Sales, Marketing, Instagram, and Influencer Marketing, WordPress development, Photographing, and Picture editing.</p>
+                            <div class="links">
+                            <a href="http://www.linkedin.com/in/eyalsberro"><i class="fab fa-linkedin-in fa-2x"></i></a>
+                            <a href="http://www.eyalsberro.com"><i class="fas fa-globe-americas fa-2x"></i></a>
+                            <a href="https://www.instagram.com/eyalsberro/"><i class="fab fa-instagram fa-2x"></i></a>
+                            </div>
+                    </div>
+                    <div class="col-6">
+                        <img src="DSC_0185.jpg" class=eyalpicture">
 
-                <div class="col">
-                   
-                        <h2>Im Eyal Sberro</h2>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex ipsum omnis tempora exercitationem consequuntu</p>
-                  
+                    </div>
                 </div>
 
             `)
@@ -203,81 +236,190 @@ $(() => {
 
     })
 
+    //====== MoreInfo Btn function =========//
+    function moreInfoBtn(cryptoId) {
+        let liveTime = Date.now();
+        let localMoreInfo = JSON.parse(localStorage.getItem(`${cryptoId}`));
+        if (localMoreInfo != null && (liveTime - localMoreInfo.time) < 120000) {
+            console.log("Info From LocalStorge");
 
-    //====== Home Page =========//
-    $(`.home`).click(() => {
-        $(".container").empty()
-        localCrypto = JSON.parse(localStorage.getItem("localCrypto"))
-        for (const crypto of localCrypto) {
-
-            CryptoDraw(crypto)
-            if (cryptoSelectArr.length > 0) {
-                cryptoSelectArr.forEach(cryptoCoinslc => {
-                    if (cryptoCoinslc == crypto.id) {
-                        $(`#${cryptoCoinslc} -switch`).prop("checked", true)
-
-                    }
-                });
-
-
-            }
-
+            $(`.moreInfo#${cryptoId}`).html(`
+                    <img src=${localMoreInfo.image.small}>
+                    <p><b>USD:</b>  $${localMoreInfo.market_data.current_price.usd} </p>
+                    <p><b>ILS:</b>  ${localMoreInfo.market_data.current_price.ils} ₪</p>
+                    <p><b>Euro:</b>  ${localMoreInfo.market_data.current_price.eur} €</p>
+                    
+                `)
+        } else {
+            console.log("Not in localStorge OR more than 2 Min");
+            $.get(`https://api.coingecko.com/api/v3/coins/${cryptoId}`, dataCrypto => {
+                $(`.moreInfo#${cryptoId}`).html(`
+                         <img src=${dataCrypto.image.small}>
+                         <p><b>USD:</b>  $${dataCrypto.market_data.current_price.usd} </p>
+                         <p><b>ILS:</b>  ${dataCrypto.market_data.current_price.ils}₪</p>
+                         <p><b>Euro:</b>  ${dataCrypto.market_data.current_price.eur}€</p>
+                    `)
+                dataCrypto.time = Date.now();
+                localStorage.setItem(`${dataCrypto.id}`, JSON.stringify(dataCrypto));
+            })
         }
 
+
+    }
+
+
+    $(`.liveReport`).click(() => {
+        dataFromCrypto()
     })
 
 
-    // function CheckToggle(cryptoCoinSelect) {
-    //     if ($(`#${ cryptoCoinSelect.id } -switch`).prop('checked')) {
-    //         console.log("checked");
-    //         cryptoSelectArr.push(cryptoCoinSelect.id)
-    //         console.log(cryptoSelectArr);
-    //         if (cryptoSelectArr.length > 5) {
-    //             // alert("You cant chose more then 5 coins")
+    function dataFromCrypto() {
+        $.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${cryptoSelectArr[0]},${cryptoSelectArr[1]},${cryptoSelectArr[2]},${cryptoSelectArr[3]},${cryptoSelectArr[4]}&tsyms=USD`, (dataFromCrypto) => {
 
-    //             let removeSelCrypto = this.id
-    //             cryptoSelectArr.splice($.inArray(removeSelCrypto, cryptoSelectArr), 1);
-    //             console.log(cryptoSelectArr);
-    //             popWindowContent(cryptoCoinSelect)
-    //             $(`#${ cryptoCoinSelect.id } -switch`).prop('checked', false)
+            if (dataFromCrypto.Response === "Error") {
+                $('.container').html(`<div class="noneselectedmsg"> <h2>Oops.. No data on selected currencies</h2> </div>`);
+                
+            }else {
 
-    //         }
-    //     } else {
-    //         console.log("Not checked");
-    //         let removeSelCrypto = cryptoCoinSelect.id
-    //         cryptoSelectArr.splice($.inArray(removeSelCrypto, cryptoSelectArr), 1);
-    //         console.log(cryptoSelectArr);
-    //     }
+                $('.container').html();
+                let currectDate = new Date();
+                let counter = 1;
+                realTimeCoins = [];
 
-
-    // }
-
-
-    function popWindowContent() {
-        let toggle = `<ul class="toggledCoins">`
-        cryptoSelectArr.forEach((selectedCoins) => {
-            toggle += `
-          <li>
-              <span class="coinsToggle"> ${selectedCoins} </span>
-              <div class="on-off-btn">
-                 <label class="switch button-toggle" >
-                    <input type="checkbox" checked="checked" id="${selectedCoins}-id1">
-                    <span class="slider round" ></span>
-                 </label>   
-               </div>
-    
-          </li>`
+                for (let key in dataFromCrypto) {
+                    switch (counter) {
+                        case 1:
+                            cryptoForGraph0.push({ x: currectDate, y: dataFromCrypto[key].USD });
+                            realTimeCoins.push(key);
+                            break;
+                        case 2:
+                            cryptoForGraph1.push({ x: currectDate, y: dataFromCrypto[key].USD });
+                            realTimeCoins.push(key);
+                            break;
+                        case 3:
+                            cryptoForGraph02.push({ x: currectDate, y: dataFromCrypto[key].USD });
+                            realTimeCoins.push(key);
+                            break;
+                        case 4:
+                            cryptoForGraph03.push({ x: currectDate, y: dataFromCrypto[key].USD });
+                            realTimeCoins.push(key);
+                            break;
+                        case 5:
+                            cryptoForGraph04.push({ x: currectDate, y: dataFromCrypto[key].USD });
+                            realTimeCoins.push(key);
+                            break;
+                    }
+                    counter++;
+                }
+                showGraphOnPage();
+                
+            }
         })
+    }
 
-        toggle += `</ul>`;
-        return toggle;
+    function showGraphOnPage() {
 
-    };
+        let chart = new CanvasJS.Chart("chartContainer", {
+            title: {
+                text: `Selected Coins: ${cryptoSelectArr} to USD`
+            },
 
+            subtitles: [{
+                text: "Hover the charts to see currency rate"
+            }],
+            axisX: {
+                valueFormatString: "HH:mm:ss"
+            },
 
+            axisY: {
+                title: "Coin Value",
+                titleFontColor: "#4F81BC",
+                lineColor: "#4F81BC",
+                labelFontColor: "#4F81BC",
+                tickColor: "#4F81BC",
+                includeZero: false
+            },
 
+            axisY2: {
+                title: "",
+                titleFontColor: "#C0504E",
+                lineColor: "#C0504E",
+                labelFontColor: "#C0504E",
+                tickColor: "#C0504E",
+                includeZero: false
+            },
+            toolTip: {
+                shared: true
+            },
 
+            legend: {
+                cursor: "pointer",
+                itemclick: toggleDataSeries
+            },
 
+            data: [
+                {
+                    type: "line",
+                    name: realTimeCoins[0],
+                    showInLegend: true,
+                    xValueFormatString: "HH:mm",
+                    dataPoints: cryptoForGraph0
 
+                },
+
+                {
+                    type: "line",
+                    name: realTimeCoins[1],
+                    showInLegend: true,
+                    xValueFormatString: "HH:mm",
+                    dataPoints: cryptoForGraph1
+
+                },
+
+                {
+
+                    type: "line",
+                    name: realTimeCoins[2],
+                    showInLegend: true,
+                    xValueFormatString: "HH:mm",
+                    dataPoints: cryptoForGraph2
+
+                },
+
+                {
+
+                    type: "line",
+                    name: realTimeCoins[3],
+                    showInLegend: true,
+                    xValueFormatString: "HH:mm",
+                    dataPoints: cryptoForGraph3
+
+                },
+
+                {
+
+                    type: "line",
+                    name: realTimeCoins[4],
+                    showInLegend: true,
+                    xValueFormatString: "HH:mm",
+                    dataPoints: cryptoForGraph4
+
+                }
+            ]
+        }
+        );
+
+        chart.render();
+
+        function toggleDataSeries(e) {
+            if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                e.dataSeries.visible = false;
+            }
+            else {
+                e.dataSeries.visible = true;
+            }
+            e.chart.render();
+        }
+    }
 })
 
