@@ -1,15 +1,16 @@
 $(() => {
 
 
-    let cryptoSelectArr = []
+    let cryptoSelectArr = [];
     let localCrypto;
+    let cryptoSymbol = [];
 
     let cryptoForGraph0 = [];
     let cryptoForGraph1 = [];
     let cryptoForGraph2 = [];
     let cryptoForGraph3 = [];
     let cryptoForGraph4 = [];
-    let realTimeCoins = [];
+    let currentTime = [];
 
 
     $.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&page=1&per_page=10`, cryptos => {
@@ -54,13 +55,19 @@ $(() => {
         //==== More Info Button===//
         $(`#btn${crypto.id}`).click(() => {
             $(`.moreInfo#${crypto.id}`).toggle();
-            moreInfoBtn(crypto.id)
-
+            setTimeout(() => {
+                moreInfoBtn(crypto.id)
+            },200);
+            $(`.moreInfo#${crypto.id}`).html(`
+                <i class="fas fa-sync fa-spin fa-2x"></i>
+            `)    
         })
 
 
         //===Check Toggle===//
+
         $(`#${crypto.id}-switch`).click((e) => {
+            
 
             if (cryptoSelectArr.length < 5) {
 
@@ -80,13 +87,6 @@ $(() => {
                 }
 
             } else {
-                // if (e.target.checked == false) {
-                //     let removeSelCrypto = crypto.id
-                //     $(`#${ crypto.id }-switch`).prop('checked', false)
-                //     cryptoSelectArr.splice($.inArray(removeSelCrypto, cryptoSelectArr), 1);
-                //     console.log(cryptoSelectArr);
-
-
 
                 $("#myModal").modal("show");
                 showModalHandler()
@@ -95,24 +95,28 @@ $(() => {
                 $(`#${crypto.id}-switch`).prop('checked', false)
                 $(`.intoggle`).click((e) => {
                     console.log(e.target.id);
-                    if (e.target.checked == false) {
-                        let removeSelCrypto = e.target.id;
-                        let arttt = cryptoSelectArr.indexOf(removeSelCrypto)
+                    console.log(cryptoSelectArr);
+                    $(`.save-btn`).click(()=> {
 
-                        cryptoSelectArr.splice(arttt, 1);
-                        $(`#${removeSelCrypto}-switch`).prop('checked', false)
-
-                        console.log(cryptoSelectArr);
-
-                    }
-
-                })
-
-                $(`.btn-close`).click(() => {
-                    let removeSelCrypto = target.id;
-                    console.log(removeSelCrypto);
-                    $(`#${removeSelCrypto}-switch`).prop('checked', true)
-
+                        if (e.target.checked == false) {
+                            let removeSelCrypto = e.target.id;
+                            let arttt = cryptoSelectArr.indexOf(removeSelCrypto)
+    
+                            cryptoSelectArr.splice(arttt, 1);
+                            $(`#${removeSelCrypto}-switch`).prop('checked', false)
+    
+                            console.log(cryptoSelectArr);
+    
+                        } else if (e.target.checked == true) {
+                            
+                                let removeSelCrypto = e.target.id;
+                                cryptoSelectArr.push(removeSelCrypto)
+                                $(`#${removeSelCrypto}-switch`).prop('checked', true)
+                                console.log(cryptoSelectArr);
+    
+                            
+                        }
+                    })
 
                 })
 
@@ -129,9 +133,14 @@ $(() => {
 
     }
 
-
     //====== Home Page =========//
     $(`.home`).click(() => {
+        cryptoForGraph0 = [];
+        cryptoForGraph1 = [];
+        cryptoForGraph2 = [];
+        cryptoForGraph3 = [];
+        cryptoForGraph4 = [];
+
         $(".container").empty()
         localCrypto = JSON.parse(localStorage.getItem("localCrypto"))
         for (const crypto of localCrypto) {
@@ -156,6 +165,7 @@ $(() => {
 
     //========== Show Modal =============//
     function showModalHandler() {
+        $(".modal-body").empty()
         for (const items of cryptoSelectArr) {
             $(".modal-body").append(`  
                 
@@ -176,14 +186,23 @@ $(() => {
     $(`#btnInp`).click(() => SearchCrypto())
 
     function SearchCrypto() {
-
+        $(".container").empty()
         let filteredCrypto = localCrypto.filter(
             crypto => crypto.symbol.toLowerCase().includes($(`#inpSearch`).val().toLowerCase())
         )
         console.log(filteredCrypto);
-        $(".container").empty()
         for (const crypto of filteredCrypto) {
             CryptoDraw(crypto)
+            if (cryptoSelectArr.length > 0) {
+                cryptoSelectArr.forEach(cryptoCoinslc => {
+                    if (cryptoCoinslc == crypto.id) {
+                        $(`#${cryptoCoinslc}-switch`).prop("checked", true)
+
+                    }
+                });
+
+
+            }
 
         }
         if (!filteredCrypto.length) {
@@ -207,7 +226,7 @@ $(() => {
                 <div class="row">
                     <div class="col-6">
                     
-                            <h2>Im Eyal Sberro</h2>
+                            <h3>Im Eyal Sberro</h3>
                             <p>I have a BA in Business Administration, Specialization in Network Sciences from the Interdisciplinary Center (IDC), Herzliya.</p>
                             <p>I'm currently learning to be a FullStack Developer at "John Bryce" finishing in March 2022.</p>
                             <p>I was a Co-founder at Dvora.io, a personalized gift matcher.</p>
@@ -229,7 +248,7 @@ $(() => {
         $(".container").html("")
         $(".container").html($(".container").html() + `
         
-            <i class="fas fa-sync fa-spin fa-10x"></i>
+            <i class="fas fa-sync fa-spin fa-5x"></i>
 
         `)
 
@@ -267,52 +286,64 @@ $(() => {
 
     }
 
-
+    //====== Live Report Page =========//
     $(`.liveReport`).click(() => {
-        dataFromCrypto()
+        cryptoSymbol = []
+        localCrypto = JSON.parse(localStorage.getItem("localCrypto"))
+        for (const crypto of localCrypto) {
+            if (cryptoSelectArr.includes(crypto.id)) {
+                cryptoSymbol.push(crypto.symbol)
+            }
+        }
+        setTimeout(() => {
+            dataFromCrypto()
+        },1000);
+        $(`.container`).html(`
+            <i class="fas fa-sync fa-spin fa-2x love"></i>
+        `)
+        
     })
 
 
     function dataFromCrypto() {
-        $.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${cryptoSelectArr[0]},${cryptoSelectArr[1]},${cryptoSelectArr[2]},${cryptoSelectArr[3]},${cryptoSelectArr[4]}&tsyms=USD`, (dataFromCrypto) => {
+        $.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${cryptoSymbol[0]},${cryptoSymbol[1]},${cryptoSymbol[2]},${cryptoSymbol[3]},${cryptoSymbol[4]}&tsyms=USD`, (dataFromCrypto) => {
 
             if (dataFromCrypto.Response === "Error") {
                 $('.container').html(`<div class="noneselectedmsg"> <h2>Oops.. No data on selected currencies</h2> </div>`);
-                
-            }else {
 
-                $('.container').html();
-                let currectDate = new Date();
-                let counter = 1;
-                realTimeCoins = [];
+            } else {
+
+                $('.container').html($chartContainer);
+                let set = 1;
+                currentTime = [];
 
                 for (let key in dataFromCrypto) {
-                    switch (counter) {
+                    switch (set) {
                         case 1:
-                            cryptoForGraph0.push({ x: currectDate, y: dataFromCrypto[key].USD });
-                            realTimeCoins.push(key);
+                            cryptoForGraph0.push({ x: new Date(), y: dataFromCrypto[key].USD });
+                            currentTime.push(key);
                             break;
                         case 2:
-                            cryptoForGraph1.push({ x: currectDate, y: dataFromCrypto[key].USD });
-                            realTimeCoins.push(key);
+                            cryptoForGraph1.push({ x: new Date(), y: dataFromCrypto[key].USD });
+                            currentTime.push(key);
                             break;
                         case 3:
-                            cryptoForGraph02.push({ x: currectDate, y: dataFromCrypto[key].USD });
-                            realTimeCoins.push(key);
+                            cryptoForGraph2.push({ x: new Date(), y: dataFromCrypto[key].USD });
+                            currentTime.push(key);
                             break;
                         case 4:
-                            cryptoForGraph03.push({ x: currectDate, y: dataFromCrypto[key].USD });
-                            realTimeCoins.push(key);
+                            cryptoForGraph3.push({ x: new Date(), y: dataFromCrypto[key].USD });
+                            currentTime.push(key);
                             break;
                         case 5:
-                            cryptoForGraph04.push({ x: currectDate, y: dataFromCrypto[key].USD });
-                            realTimeCoins.push(key);
+                            cryptoForGraph4.push({ x: new Date(), y: dataFromCrypto[key].USD });
+                            currentTime.push(key);
                             break;
                     }
-                    counter++;
+                    set++;
                 }
                 showGraphOnPage();
-                
+
             }
         })
     }
@@ -321,33 +352,22 @@ $(() => {
 
         let chart = new CanvasJS.Chart("chartContainer", {
             title: {
-                text: `Selected Coins: ${cryptoSelectArr} to USD`
+                text: `Showing Crypto Coin: ${cryptoSymbol} to USD`
             },
-
-            subtitles: [{
-                text: "Hover the charts to see currency rate"
-            }],
             axisX: {
                 valueFormatString: "HH:mm:ss"
             },
 
             axisY: {
-                title: "Coin Value",
-                titleFontColor: "#4F81BC",
-                lineColor: "#4F81BC",
-                labelFontColor: "#4F81BC",
-                tickColor: "#4F81BC",
+                title: "Crypto Price USD",
+                titleFontColor: "#369EAD",
+                lineColor: "#369EAD",
+                labelFontColor: "#369EAD",
+                tickColor: "#369EAD",
+                prefix: "$",
                 includeZero: false
             },
 
-            axisY2: {
-                title: "",
-                titleFontColor: "#C0504E",
-                lineColor: "#C0504E",
-                labelFontColor: "#C0504E",
-                tickColor: "#C0504E",
-                includeZero: false
-            },
             toolTip: {
                 shared: true
             },
@@ -360,7 +380,7 @@ $(() => {
             data: [
                 {
                     type: "line",
-                    name: realTimeCoins[0],
+                    name: currentTime[0],
                     showInLegend: true,
                     xValueFormatString: "HH:mm",
                     dataPoints: cryptoForGraph0
@@ -369,7 +389,7 @@ $(() => {
 
                 {
                     type: "line",
-                    name: realTimeCoins[1],
+                    name: currentTime[1],
                     showInLegend: true,
                     xValueFormatString: "HH:mm",
                     dataPoints: cryptoForGraph1
@@ -379,7 +399,7 @@ $(() => {
                 {
 
                     type: "line",
-                    name: realTimeCoins[2],
+                    name: currentTime[2],
                     showInLegend: true,
                     xValueFormatString: "HH:mm",
                     dataPoints: cryptoForGraph2
@@ -389,7 +409,7 @@ $(() => {
                 {
 
                     type: "line",
-                    name: realTimeCoins[3],
+                    name: currentTime[3],
                     showInLegend: true,
                     xValueFormatString: "HH:mm",
                     dataPoints: cryptoForGraph3
@@ -399,7 +419,7 @@ $(() => {
                 {
 
                     type: "line",
-                    name: realTimeCoins[4],
+                    name: currentTime[4],
                     showInLegend: true,
                     xValueFormatString: "HH:mm",
                     dataPoints: cryptoForGraph4
@@ -423,3 +443,4 @@ $(() => {
     }
 })
 
+let $chartContainer = `<div id="chartContainer"></div>`
